@@ -2,14 +2,14 @@
 
 #include "Common.hpp"
 
-class TardinessProblemInstanceCost
+class TardinessProblemCost
 {
 public:
-    explicit TardinessProblemInstanceCost(std::vector<Job> const &jobs)
+    explicit TardinessProblemCost(std::vector<Job> const &jobs)
         : m_jobs(jobs)
     {}
 
-    unsigned operator()(Permutation const &p)
+    unsigned operator()(Permutation const &p) const
     {
         unsigned cost = 0;
         unsigned time = 0;
@@ -17,7 +17,7 @@ public:
         {
             time += m_jobs[i].time;
             if (time > m_jobs[i].due)
-                cost += (time - m_jobs[i].due)*m_jobs[i].weight;
+                cost += (time - m_jobs[i].due) * m_jobs[i].weight;
         }
         return cost;
     }

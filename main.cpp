@@ -1,10 +1,9 @@
 #include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <functional>
 #include <vector>
 #include <cstdlib>
-#include <cassert>
+
+#include "Solver.hpp"
+#include "TardinessProblem.hpp"
 
 void print_vec(std::vector<int> const &v)
 {
@@ -13,67 +12,43 @@ void print_vec(std::vector<int> const &v)
     std::cout << std::endl;
 }
 
-
 int main(int argc, char **argv)
 {
-    
-    if (argc != 3)
+    if (argc != 7)
     {
-        std::cout << "Usage: ./heur problem_size instances";
+        std::cout << "Usage: ./heur problem_size population_size instances age_threshold alpha_threshold reiter_threshold";
         return 1;
     }
 
-    unsigned permutation_size = atoi(argv[1]);
+    unsigned problem_size = atoi(argv[1]);
     unsigned instances = atoi(argv[2]);
+    unsigned population_size = atoi(argv[3]);
+    double age_threshold = atof(argv[4]);
+    double alpha_threshold = atof(argv[5]);
+    unsigned reiter_threshold = atoi(argv[6]);
 
-    std::vector<int> best_solutions;
-    std::vector<int> random_solutions;
+    std::vector<std::vector<Job>> problem_instances;
     for (unsigned t = 0; t < instances; t++)
     {
-        std::vector<Job> jobs(permutation_size);
-        for (unsigned i = 0; i < permutation_size; i++)
+        std::vector<Job> jobs(problem_size);
+        for (unsigned i = 0; i < problem_size; i++)
             std::cin >> jobs[i].time;
-        for (unsigned i = 0; i < permutation_size; i++)
+        for (unsigned i = 0; i < problem_size; i++)
             std::cin >> jobs[i].weight;
-        for (unsigned i = 0; i < permutation_size; i++)
+        for (unsigned i = 0; i < problem_size; i++)
             std::cin >> jobs[i].due;
-
-        TardinessProblemInstance instance(jobs);
-        auto solution = solve(g_population_size, permutation_size, instance);
-
-        auto our_cost = instance(solution);
-        best_solutions.push_back(our_cost);
-
-        std::random_shuffle(solution.begin(), solution.end());
-        random_solutions.push_back(instance(solution));
+        problem_instances.push_back(jobs);
     }
 
-    std::vector<int> opt_solutions;
-    std::ifstream f("wtopt40.txt");
-    for (unsigned i = 0; i < instances; i++)
-    {
-        unsigned x;
-        f >> x;
-        opt_solutions.push_back(x);
-    }
 
-    std::cout << "my\tr\topt\tmy/opt\tmy/r\n";
-    for (unsigned i = 0; i < instances; i++)
+    Solver solver;
+    for (unsigned t = 0; t < instances; t++)
     {
-        unsigned my = best_solutions[i];
-        unsigned r = random_solutions[i];
-        unsigned opt = opt_solutions[i];
-        std::cout << my  << "\t"
-                  << r << "\t"
-                  << opt << "\t"
-                  << (unsigned)my/(unsigned)opt << "\t"
-                  << (unsigned)my/(unsigned)r;
-
-        if ((unsigned)my/(unsigned)opt < 1.5)
-            std::cout << "\tNICE";
-        else if ((unsigned)my/(unsigned)opt > 3)
-            std::cout << "\tPOOR";
-        std::cout << std::endl;
+        TardinessProblemCost cost_function(problem_instances[t]);       
+        auto solution = solver.solve(cost_function, problem_size, population_size, reiter_threshold,
+                                     age_threshold, alpha_threshold);
+        
+        std::cout << cost_function(solution) << std::endl;
     }
     return 0;
 }

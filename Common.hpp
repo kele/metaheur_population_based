@@ -5,7 +5,7 @@
 
 using Permutation = std::vector<int>;
 using Population = std::vector<Permutation>;
-using CostFun = std::function<double(Permutation const&)>;
+using CostFun = std::function<int(Permutation const&)>;
 
 struct Job
 {
@@ -13,3 +13,4 @@ struct Job
     unsigned weight;
     unsigned due;
 };
+
