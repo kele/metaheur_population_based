@@ -6,10 +6,10 @@ with open("wtopt40.txt") as x:
     for line in x:
         opt.append(int(line) + 1)
 
-age_thresholds = [0.15, 0.40]
-alpha_thresholds = [0.3, 0.6, 0.7, 0.8]
-populs = [40, 100, 200, 400]
-reiters = [1, 5, 10]
+age_thresholds = [0.15]
+alpha_thresholds = [0.6, 0.7, 0.8]
+populs = [3000]
+reiters = [1]
 
 args = []
 for age in age_thresholds:
